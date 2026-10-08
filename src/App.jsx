@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createAdminApi, login, normalizeBaseUrl } from "./api.js";
+import { describeNotification } from "./notification.js";
 
 const SESSION_KEY = "brayano_admin_session";
 const DEFAULT_API_URL = import.meta.env.VITE_API_URL ?? "";
@@ -101,6 +102,7 @@ function Dashboard({ session, onLogout }) {
   const [filter, setFilter] = useState("all");
   const [target, setTarget] = useState(null);
   const [busyId, setBusyId] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -117,12 +119,14 @@ function Dashboard({ session, onLogout }) {
 
   useEffect(() => { load(); }, [load]);
 
-  async function run(organizationId, action) {
+  async function run(organizationId, kind, action) {
     setBusyId(organizationId);
     setError("");
+    setNotice(null);
     try {
-      await action();
+      const result = await action();
       setTarget(null);
+      setNotice(describeNotification(kind, result?.notification));
       await load();
     } catch (err) {
       setError(err.message);
@@ -162,6 +166,7 @@ function Dashboard({ session, onLogout }) {
       </div>
 
       {error && <p className="error" role="alert">{error}</p>}
+      {notice && <p className={notice.ok ? "success" : "warning"} role="status">{notice.message}</p>}
 
       <div className="table-wrap">
         <table>
@@ -189,7 +194,7 @@ function Dashboard({ session, onLogout }) {
                 </td>
                 <td className="right">
                   {org.platformSuspended ? (
-                    <button className="secondary" disabled={busyId === org.id} onClick={() => run(org.id, () => api.unsuspend(org.id))}>Réactiver</button>
+                    <button className="secondary" disabled={busyId === org.id} onClick={() => run(org.id, "unsuspend", () => api.unsuspend(org.id))}>Réactiver</button>
                   ) : (
                     <button className="danger" disabled={busyId === org.id} onClick={() => setTarget(org)}>Suspendre</button>
                   )}
@@ -211,7 +216,7 @@ function Dashboard({ session, onLogout }) {
           organization={target}
           busy={busyId === target.id}
           onCancel={() => setTarget(null)}
-          onConfirm={(reason) => run(target.id, () => api.suspend(target.id, reason))}
+          onConfirm={(reason) => run(target.id, "suspend", () => api.suspend(target.id, reason))}
         />
       )}
     </main>
