@@ -33,10 +33,19 @@ const WHATSAPP_STATUS = {
 
 function WhatsAppCell({ whatsapp }) {
   const info = WHATSAPP_STATUS[whatsapp?.status] ?? WHATSAPP_STATUS.DISCONNECTED;
+  const connected = whatsapp?.status === "CONNECTED";
   return (
     <>
       <span className={`badge ${info.className}`}>{info.label}</span>
       {whatsapp?.phoneNumber && <div className="muted mono">+{String(whatsapp.phoneNumber).replace(/^\+/, "")}</div>}
+      {!connected && whatsapp?.lastDisconnectedAt && (
+        <div className="muted">Coupé le {formatDate(whatsapp.lastDisconnectedAt)}</div>
+      )}
+      {!connected && whatsapp?.lastDisconnectReason && <div className="muted">{whatsapp.lastDisconnectReason}</div>}
+      {!connected && !whatsapp?.lastDisconnectedAt && whatsapp?.updatedAt && (
+        <div className="muted">Dernier changement le {formatDate(whatsapp.updatedAt)} (cause non enregistrée)</div>
+      )}
+      {connected && whatsapp?.lastConnectedAt && <div className="muted">Connecté depuis le {formatDate(whatsapp.lastConnectedAt)}</div>}
     </>
   );
 }
