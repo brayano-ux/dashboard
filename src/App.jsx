@@ -25,6 +25,22 @@ function saveSession(session) {
 const dateFormat = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
 const formatDate = (value) => (value ? dateFormat.format(new Date(value)) : "—");
 
+const WHATSAPP_STATUS = {
+  CONNECTED: { label: "Connecté", className: "on" },
+  QR_PENDING: { label: "QR à scanner", className: "warn" },
+  DISCONNECTED: { label: "Déconnecté", className: "off" },
+};
+
+function WhatsAppCell({ whatsapp }) {
+  const info = WHATSAPP_STATUS[whatsapp?.status] ?? WHATSAPP_STATUS.DISCONNECTED;
+  return (
+    <>
+      <span className={`badge ${info.className}`}>{info.label}</span>
+      {whatsapp?.phoneNumber && <div className="muted mono">+{String(whatsapp.phoneNumber).replace(/^\+/, "")}</div>}
+    </>
+  );
+}
+
 function Login({ onLogin }) {
   const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
   const [email, setEmail] = useState("");
@@ -171,7 +187,7 @@ function Dashboard({ session, onLogout }) {
       <div className="table-wrap">
         <table>
           <thead>
-            <tr><th>Entreprise</th><th>Créée le</th><th>Réglage client</th><th>Statut plateforme</th><th></th></tr>
+            <tr><th>Entreprise</th><th>Créée le</th><th>WhatsApp</th><th>Réglage client</th><th>Statut plateforme</th><th></th></tr>
           </thead>
           <tbody>
             {visible.map((org) => (
@@ -181,6 +197,7 @@ function Dashboard({ session, onLogout }) {
                   <div className="muted mono">{org.id}</div>
                 </td>
                 <td>{formatDate(org.createdAt)}</td>
+                <td><WhatsAppCell whatsapp={org.whatsapp} /></td>
                 <td>{org.aiSettings?.aiEnabled === false ? "IA coupée par le client" : "IA activée"}</td>
                 <td>
                   {org.platformSuspended ? (
@@ -202,10 +219,10 @@ function Dashboard({ session, onLogout }) {
               </tr>
             ))}
             {!loading && visible.length === 0 && (
-              <tr><td colSpan={5} className="empty">Aucune entreprise à afficher.</td></tr>
+              <tr><td colSpan={6} className="empty">Aucune entreprise à afficher.</td></tr>
             )}
             {loading && organizations.length === 0 && (
-              <tr><td colSpan={5} className="empty">Chargement…</td></tr>
+              <tr><td colSpan={6} className="empty">Chargement…</td></tr>
             )}
           </tbody>
         </table>

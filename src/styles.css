@@ -31,7 +31,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .toolbar { display: flex; gap: 8px; }
 .toolbar input { flex: 1; }
 .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+table { width: 100%; border-collapse: collapse; min-width: 860px; }
 th, td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
 th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
 tr:last-child td { border-bottom: 0; }
@@ -47,3 +47,5 @@ td.empty { text-align: center; color: var(--muted); padding: 32px; }
 .success { background: var(--ok-bg); color: var(--ok); }
 .warning { background: #fff4d6; color: #7a5200; }
 @media (prefers-color-scheme: dark) { .warning { background: #3a2e0b; color: #ffd37a; } }
+.badge.warn { background: #fff4d6; color: #7a5200; }
+@media (prefers-color-scheme: dark) { .badge.warn { background: #3a2e0b; color: #ffd37a; } }
