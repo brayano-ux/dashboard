@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createAdminApi, normalizeBaseUrl } from "./api.js";
+import { createAdminApi, login, normalizeBaseUrl } from "./api.js";
 
 const SESSION_KEY = "brayano_admin_session";
 const DEFAULT_API_URL = import.meta.env.VITE_API_URL ?? "";
@@ -26,7 +26,8 @@ const formatDate = (value) => (value ? dateFormat.format(new Date(value)) : "—
 
 function Login({ onLogin }) {
   const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
-  const [token, setToken] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -34,9 +35,11 @@ function Login({ onLogin }) {
     event.preventDefault();
     setBusy(true);
     setError("");
-    const session = { apiUrl: normalizeBaseUrl(apiUrl), token: token.trim() };
+    const baseUrl = normalizeBaseUrl(apiUrl);
     try {
-      await createAdminApi({ baseUrl: session.apiUrl, token: session.token }).listOrganizations();
+      const token = await login({ baseUrl, email, password });
+      const session = { apiUrl: baseUrl, token };
+      await createAdminApi({ baseUrl, token }).listOrganizations();
       onLogin(session);
     } catch (err) {
       setError(err.message);
@@ -55,8 +58,12 @@ function Login({ onLogin }) {
           <input type="url" required value={apiUrl} onChange={(e) => setApiUrl(e.target.value)} placeholder="https://votre-api.onrender.com" />
         </label>
         <label>
-          Token administrateur
-          <input type="password" required autoComplete="current-password" value={token} onChange={(e) => setToken(e.target.value)} />
+          Email
+          <input type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </label>
+        <label>
+          Mot de passe
+          <input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" disabled={busy}>{busy ? "Connexion…" : "Se connecter"}</button>
