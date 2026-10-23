@@ -65,6 +65,15 @@ export function createAdminApi({ baseUrl, token, fetchImpl = (...args) => fetch(
       const { organizations } = await request("/admin/organizations");
       return organizations;
     },
+    /** Entreprises + totaux de la plateforme (réponses de l'IA aujourd'hui, 7 jours, 30 jours, total). */
+    async getOverview() {
+      const { organizations, totals } = await request("/admin/organizations");
+      return { organizations, totals: totals ?? null };
+    },
+    /** Réponses de l'IA jour par jour pour une entreprise. */
+    getAiUsage(organizationId, days = 30) {
+      return request(`/admin/organizations/${encodeURIComponent(organizationId)}/ai-usage?days=${encodeURIComponent(days)}`);
+    },
     suspend(organizationId, reason) {
       return request(`/admin/organizations/${encodeURIComponent(organizationId)}/suspend`, {
         method: "POST",

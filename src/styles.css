@@ -25,7 +25,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .error { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--off-bg); color: var(--off); }
 .login { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
 .login .card { width: min(420px, 100%); }
-.dashboard { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 16px; }
+.dashboard { max-width: 1240px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 16px; }
 .dashboard header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .toolbar { display: flex; gap: 8px; }
@@ -49,3 +49,20 @@ td.empty { text-align: center; color: var(--muted); padding: 32px; }
 @media (prefers-color-scheme: dark) { .warning { background: #3a2e0b; color: #ffd37a; } }
 .badge.warn { background: #fff4d6; color: #7a5200; }
 @media (prefers-color-scheme: dark) { .badge.warn { background: #3a2e0b; color: #ffd37a; } }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; }
+.stat strong { font-size: 1.75rem; line-height: 1.1; }
+.toolbar { flex-wrap: wrap; }
+.toolbar input { min-width: 220px; }
+.usage { min-width: 190px; }
+.usage-main strong { font-size: 1.35rem; }
+.usage-bar { height: 6px; margin: 6px 0; border-radius: 999px; background: var(--border); overflow: hidden; }
+.usage-bar i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+.dialog.wide { width: min(640px, 100%); }
+label.inline { display: flex; align-items: center; gap: 10px; }
+.chart { display: flex; align-items: flex-end; gap: 2px; height: 160px; padding: 8px 0 0; border-bottom: 1px solid var(--border); }
+.chart .bar { flex: 1; height: 100%; display: flex; align-items: flex-end; min-width: 2px; }
+.chart .bar i { display: block; width: 100%; background: var(--primary); border-radius: 3px 3px 0 0; min-height: 0; }
+.chart .bar:hover i { opacity: 0.75; }
+.chart-axis { display: flex; justify-content: space-between; }
