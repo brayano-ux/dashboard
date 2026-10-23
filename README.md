@@ -1,7 +1,13 @@
 # Brayano Admin
 
-Tableau de bord du propriétaire de la plateforme Brayano AI : lister les entreprises, suspendre ou réactiver leur agent IA.
+Tableau de bord du propriétaire de la plateforme Brayano AI : lister les entreprises, voir combien de réponses l'IA a générées pour chacune (aujourd'hui, 7 jours, 30 jours, total, détail jour par jour, export CSV), suspendre ou réactiver leur agent IA.
 Il appelle les routes `/admin` du backend (`brayano_ia`), protégées par `PLATFORM_ADMIN_TOKEN`.
+
+## Réponses de l'IA par entreprise
+- Chaque ligne affiche les réponses générées par l'IA (réponses aux clients, messages d'accueil et relances) aujourd'hui, sur 7 et 30 jours, et au total. Les journées sont comptées à l'heure du Cameroun.
+- Les cartes du haut donnent les totaux de toute la plateforme. Le tri permet de voir les entreprises les plus (ou les moins) actives.
+- « Détail » ouvre un graphique jour par jour (7, 30 ou 90 jours). « Exporter (CSV) » télécharge la liste affichée pour un tableur.
+- Nécessite le backend `brayano_ia` avec la route `/admin/organizations/:id/ai-usage` (branche `feat/admin-usage`).
 
 ## Utilisation
 ```bash

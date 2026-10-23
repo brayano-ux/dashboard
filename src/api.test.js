@@ -17,6 +17,21 @@ describe("admin api", () => {
     });
   });
 
+  it("returns organizations with the platform totals", async () => {
+    const fetchImpl = vi.fn(async () => json(200, { organizations: [{ id: "o1" }], totals: { total: 12 } }));
+    const api = createAdminApi({ baseUrl: "https://api.example.com", token: "secret", fetchImpl });
+    await expect(api.getOverview()).resolves.toEqual({ organizations: [{ id: "o1" }], totals: { total: 12 } });
+    const older = createAdminApi({ baseUrl: "x", token: "t", fetchImpl: async () => json(200, { organizations: [] }) });
+    await expect(older.getOverview()).resolves.toEqual({ organizations: [], totals: null });
+  });
+
+  it("fetches the daily AI usage of one company", async () => {
+    const fetchImpl = vi.fn(async () => json(200, { daily: [] }));
+    const api = createAdminApi({ baseUrl: "https://api.example.com", token: "secret", fetchImpl });
+    await api.getAiUsage("o 1", 90);
+    expect(fetchImpl.mock.calls[0][0]).toBe("https://api.example.com/admin/organizations/o%201/ai-usage?days=90");
+  });
+
   it("posts the suspension reason", async () => {
     const fetchImpl = vi.fn(async () => json(200, {}));
     const api = createAdminApi({ baseUrl: "https://api.example.com", token: "secret", fetchImpl });
