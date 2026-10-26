@@ -32,6 +32,13 @@ describe("admin api", () => {
     expect(fetchImpl.mock.calls[0][0]).toBe("https://api.example.com/admin/organizations/o%201/ai-usage?days=90");
   });
 
+  it("fetches the landing page visit counter", async () => {
+    const fetchImpl = vi.fn(async () => json(200, { today: { views: 3, uniqueVisitors: 2 } }));
+    const api = createAdminApi({ baseUrl: "https://api.example.com", token: "secret", fetchImpl });
+    await api.getLandingViews(7);
+    expect(fetchImpl.mock.calls[0][0]).toBe("https://api.example.com/admin/analytics/landing-views?days=7");
+  });
+
   it("posts the suspension reason", async () => {
     const fetchImpl = vi.fn(async () => json(200, {}));
     const api = createAdminApi({ baseUrl: "https://api.example.com", token: "secret", fetchImpl });
