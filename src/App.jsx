@@ -120,32 +120,42 @@ function UsageDialog({ organization, api, onClose }) {
 function LandingViewsCard({ data, error }) {
   const dayLabel = (date) => new Date(`${date}T12:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
   const daily = data?.daily ?? [];
-  const max = Math.max(0, ...daily.map((day) => day.views));
+  // Le nombre qui compte, c'est le visiteur, pas le rechargement de page : un même visiteur qui revient dans la
+  // même journée n'en fait pas un deuxième. Le graphique et les grands chiffres suivent donc les visiteurs distincts.
+  const max = Math.max(0, ...daily.map((day) => day.uniqueVisitors));
   return (
     <section className="panel landing-views" aria-label="Visiteurs de la page d'accueil">
       <div className="panel-head">
         <h2>Visiteurs de la page d'accueil</h2>
-        <p className="muted">Comptage anonyme : aucune adresse IP ni cookie n'est conservé, seulement le nombre de visites par jour.</p>
+        <p className="muted">
+          Comptage anonyme, sans adresse IP ni cookie conservés. Un même visiteur qui recharge la page ou revient plusieurs fois
+          dans la même journée compte pour un seul visiteur ce jour-là (le compteur change de base chaque jour, donc un visiteur
+          qui revient un autre jour compte à nouveau — c'est voulu, pour ne garder aucune trace d'un jour à l'autre).
+        </p>
       </div>
       {error && <p className="error" role="alert">{error}</p>}
       {!error && !data && <p className="muted">Chargement…</p>}
       {data && (
         <>
           <div className="summary">
-            <div className="stat"><span className="muted">Aujourd'hui</span><strong>{formatCount(data.today.views)}</strong></div>
-            <div className="stat"><span className="muted">7 derniers jours</span><strong>{formatCount(data.last7Days.views)}</strong></div>
-            <div className="stat"><span className="muted">30 derniers jours</span><strong>{formatCount(data.last30Days.views)}</strong></div>
-            <div className="stat"><span className="muted">Depuis le début</span><strong>{formatCount(data.total.views)}</strong></div>
+            <div className="stat"><span className="muted">Aujourd'hui</span><strong>{formatCount(data.today.uniqueVisitors)}</strong></div>
+            <div className="stat"><span className="muted">7 derniers jours</span><strong>{formatCount(data.last7Days.uniqueVisitors)}</strong></div>
+            <div className="stat"><span className="muted">30 derniers jours</span><strong>{formatCount(data.last30Days.uniqueVisitors)}</strong></div>
+            <div className="stat"><span className="muted">Depuis le début</span><strong>{formatCount(data.total.uniqueVisitors)}</strong></div>
           </div>
           <p className="muted landing-views-unique">
-            Visiteurs distincts (estimation) : aujourd'hui {formatCount(data.today.uniqueVisitors)} · 7 jours {formatCount(data.last7Days.uniqueVisitors)} · 30 jours {formatCount(data.last30Days.uniqueVisitors)}
+            Pages vues (rechargements compris) : aujourd'hui {formatCount(data.today.views)} · 7 jours {formatCount(data.last7Days.views)} · 30 jours {formatCount(data.last30Days.views)}
           </p>
           {daily.length > 0 && (
             <>
-              <div className="chart landing-views-chart" role="img" aria-label="Visites de la page d'accueil par jour">
+              <div className="chart landing-views-chart" role="img" aria-label="Visiteurs de la page d'accueil par jour">
                 {daily.map((day) => (
-                  <div className="bar" key={day.date} title={`${dayLabel(day.date)} : ${formatCount(day.views)} visite${day.views > 1 ? "s" : ""}`}>
-                    <i style={{ height: `${barPercent(day.views, max)}%` }} />
+                  <div
+                    className="bar"
+                    key={day.date}
+                    title={`${dayLabel(day.date)} : ${formatCount(day.uniqueVisitors)} visiteur${day.uniqueVisitors > 1 ? "s" : ""} (${formatCount(day.views)} page${day.views > 1 ? "s" : ""} vue${day.views > 1 ? "s" : ""})`}
+                  >
+                    <i style={{ height: `${barPercent(day.uniqueVisitors, max)}%` }} />
                   </div>
                 ))}
               </div>
