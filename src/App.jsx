@@ -117,6 +117,47 @@ function UsageDialog({ organization, api, onClose }) {
   );
 }
 
+function LandingViewsCard({ data, error }) {
+  const dayLabel = (date) => new Date(`${date}T12:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  const daily = data?.daily ?? [];
+  const max = Math.max(0, ...daily.map((day) => day.views));
+  return (
+    <section className="panel landing-views" aria-label="Visiteurs de la page d'accueil">
+      <div className="panel-head">
+        <h2>Visiteurs de la page d'accueil</h2>
+        <p className="muted">Comptage anonyme : aucune adresse IP ni cookie n'est conservé, seulement le nombre de visites par jour.</p>
+      </div>
+      {error && <p className="error" role="alert">{error}</p>}
+      {!error && !data && <p className="muted">Chargement…</p>}
+      {data && (
+        <>
+          <div className="summary">
+            <div className="stat"><span className="muted">Aujourd'hui</span><strong>{formatCount(data.today.views)}</strong></div>
+            <div className="stat"><span className="muted">7 derniers jours</span><strong>{formatCount(data.last7Days.views)}</strong></div>
+            <div className="stat"><span className="muted">30 derniers jours</span><strong>{formatCount(data.last30Days.views)}</strong></div>
+            <div className="stat"><span className="muted">Depuis le début</span><strong>{formatCount(data.total.views)}</strong></div>
+          </div>
+          <p className="muted landing-views-unique">
+            Visiteurs distincts (estimation) : aujourd'hui {formatCount(data.today.uniqueVisitors)} · 7 jours {formatCount(data.last7Days.uniqueVisitors)} · 30 jours {formatCount(data.last30Days.uniqueVisitors)}
+          </p>
+          {daily.length > 0 && (
+            <>
+              <div className="chart landing-views-chart" role="img" aria-label="Visites de la page d'accueil par jour">
+                {daily.map((day) => (
+                  <div className="bar" key={day.date} title={`${dayLabel(day.date)} : ${formatCount(day.views)} visite${day.views > 1 ? "s" : ""}`}>
+                    <i style={{ height: `${barPercent(day.views, max)}%` }} />
+                  </div>
+                ))}
+              </div>
+              <div className="chart-axis muted"><span>{dayLabel(daily[0].date)}</span><span>{dayLabel(daily[daily.length - 1].date)}</span></div>
+            </>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
 function SummaryCards({ totals }) {
   if (!totals) return null;
   const items = [
@@ -209,6 +250,8 @@ function Dashboard({ session, onLogout }) {
   const api = useMemo(() => createAdminApi({ baseUrl: session.apiUrl, token: session.token }), [session]);
   const [organizations, setOrganizations] = useState([]);
   const [totals, setTotals] = useState(null);
+  const [landingViews, setLandingViews] = useState(null);
+  const [landingViewsError, setLandingViewsError] = useState("");
   const [sort, setSort] = useState("recent");
   const [usageTarget, setUsageTarget] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -231,6 +274,13 @@ function Dashboard({ session, onLogout }) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+    // Chargé à part : un souci sur le compteur de visites ne doit jamais empêcher d'afficher la liste des entreprises.
+    try {
+      setLandingViews(await api.getLandingViews(30));
+      setLandingViewsError("");
+    } catch (err) {
+      setLandingViewsError(err.message);
     }
   }, [api, onLogout]);
 
@@ -288,6 +338,8 @@ function Dashboard({ session, onLogout }) {
       </header>
 
       <SummaryCards totals={totals} />
+
+      <LandingViewsCard data={landingViews} error={landingViewsError} />
 
       <div className="toolbar">
         <input type="search" placeholder="Rechercher par nom, email ou identifiant" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Rechercher" />

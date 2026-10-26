@@ -74,6 +74,10 @@ export function createAdminApi({ baseUrl, token, fetchImpl = (...args) => fetch(
     getAiUsage(organizationId, days = 30) {
       return request(`/admin/organizations/${encodeURIComponent(organizationId)}/ai-usage?days=${encodeURIComponent(days)}`);
     },
+    /** Visites de la page d'accueil (compteur anonyme, sans IP ni cookie) : total, par jour, estimation de visiteurs distincts. */
+    getLandingViews(days = 30) {
+      return request(`/admin/analytics/landing-views?days=${encodeURIComponent(days)}`);
+    },
     suspend(organizationId, reason) {
       return request(`/admin/organizations/${encodeURIComponent(organizationId)}/suspend`, {
         method: "POST",
