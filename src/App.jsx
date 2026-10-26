@@ -163,10 +163,13 @@ function Login({ onLogin }) {
       <form className="card" onSubmit={submit}>
         <h1>Brayano Admin</h1>
         <p className="muted">Espace réservé au propriétaire de la plateforme.</p>
-        <label>
-          URL de l'API
-          <input type="url" required value={apiUrl} onChange={(e) => setApiUrl(e.target.value)} placeholder="https://votre-api.onrender.com" />
-        </label>
+        {/* Quand VITE_API_URL est défini au déploiement, l'adresse du serveur est figée : le formulaire ne peut pas envoyer vos identifiants ailleurs. */}
+        {!DEFAULT_API_URL && (
+          <label>
+            URL de l'API
+            <input type="url" required value={apiUrl} onChange={(e) => setApiUrl(e.target.value)} placeholder="https://votre-api.onrender.com" />
+          </label>
+        )}
         <label>
           Email
           <input type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
