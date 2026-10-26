@@ -21,3 +21,7 @@ npm test
 - `PLATFORM_ADMIN_EMAILS` : emails autorisés, séparés par des virgules (ex. `moi@exemple.com`). Si absent, le compte `DEFAULT_ADMIN_EMAIL` est utilisé. Un compte d'entreprise non listé reçoit 403.
 - `PLATFORM_ADMIN_TOKEN` (optionnel) reste accepté en `Authorization: Bearer` pour des scripts.
 - La migration `20261008000000_add_platform_suspension` doit être appliquée à la base.
+
+## Sécurité
+- Définissez `VITE_API_URL` dans Vercel : le champ « URL de l'API » disparaît alors du formulaire de connexion et vos identifiants ne peuvent être envoyés qu'à votre serveur.
+- `vercel.json` ajoute une politique de contenu (CSP), HSTS et les autres en-têtes de protection.
